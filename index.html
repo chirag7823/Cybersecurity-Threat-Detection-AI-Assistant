@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phishing Detector</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            margin: 30px auto;
+        }
+        h1 {
+            color: #0056b3;
+            text-align: center;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        input[type="text"] {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        pre {
+            background-color: #e9e9e9;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+            white-space: pre-wrap; /* Allows text to wrap */
+            word-wrap: break-word; /* Ensures long words break */
+            font-family: 'Courier New', Courier, monospace;
+        }
+        .result-box {
+            margin-top: 20px;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+        }
+        .error {
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Phishing Detection API</h1>
+        <p>Enter a URL to check if it's phishing or legitimate.</p>
+
+        <label for="urlInput">URL:</label>
+        <input type="text" id="urlInput" placeholder="e.g., https://www.google.com">
+        <button onclick="checkPhishing()">Check URL</button>
+
+        <div class="result-box">
+            <h2>Result:</h2>
+            <pre id="responseOutput">Enter a URL and click "Check URL" to see the prediction.</pre>
+        </div>
+    </div>
+
+    <script>
+        async function checkPhishing() {
+            const url = document.getElementById('urlInput').value;
+            const responseOutput = document.getElementById('responseOutput');
+            responseOutput.textContent = 'Checking...';
+            responseOutput.classList.remove('error');
+
+            if (!url) {
+                responseOutput.textContent = 'Please enter a URL.';
+                responseOutput.classList.add('error');
+                return;
+            }
+
+            try {
+                const response = await fetch('/predict', { // Using relative path /predict
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ url: url })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.error || 'Unknown error'}`);
+                }
+
+                const data = await response.json();
+                responseOutput.textContent = JSON.stringify(data, null, 2); // Pretty print JSON
+            } catch (error) {
+                console.error('Error:', error);
+                responseOutput.textContent = `Error: ${error.message || error}`;
+                responseOutput.classList.add('error');
+            }
+        }
+    </script>
+</body>
+</html>
