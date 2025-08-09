@@ -1,0 +1,6 @@
+flask
+numpy
+requests
+beautifulsoup4
+python-whois
+scikit-learn
